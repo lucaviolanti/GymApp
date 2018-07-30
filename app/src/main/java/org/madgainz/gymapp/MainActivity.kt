@@ -1,10 +1,13 @@
 package org.madgainz.gymapp
 
+import android.content.Context
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
-import android.view.Menu
-import android.view.MenuItem
+import android.util.AttributeSet
+import android.view.*
+import android.widget.Button
 
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -14,6 +17,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
+
+        val button = findViewById<Button>(R.id.button)
+        val mp: MediaPlayer = MediaPlayer.create(this, R.raw.beep)
+        button.setOnClickListener {mp.start()}
 
         fab.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
