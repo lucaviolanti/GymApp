@@ -2,9 +2,11 @@ package org.madgainz.gymapp
 
 import android.media.MediaPlayer
 import android.os.Bundle
+import android.os.SystemClock
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Chronometer
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 
@@ -14,9 +16,18 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
-
         val mp: MediaPlayer = MediaPlayer.create(this, R.raw.beep)
-        beepFab.setOnClickListener {mp.start()}
+
+        chronometer.base = SystemClock.elapsedRealtime() + 2000
+        chronometer.onChronometerTickListener = Chronometer.OnChronometerTickListener { chronometer ->
+            if ("-00:02" == chronometer.text) {
+                mp.start()
+            }
+        }
+        beepFab.setOnClickListener {
+            mp.start()
+            chronometer.start()
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
