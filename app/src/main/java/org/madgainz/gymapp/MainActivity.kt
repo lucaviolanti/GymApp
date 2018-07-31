@@ -1,15 +1,12 @@
 package org.madgainz.gymapp
 
-import android.content.Context
 import android.media.MediaPlayer
 import android.os.Bundle
-import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
-import android.util.AttributeSet
-import android.view.*
-import android.widget.Button
-
+import android.view.Menu
+import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.content_main.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -18,14 +15,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
-        val button = findViewById<Button>(R.id.button)
         val mp: MediaPlayer = MediaPlayer.create(this, R.raw.beep)
-        button.setOnClickListener {mp.start()}
-
-        fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
-        }
+        beepFab.setOnClickListener {mp.start()}
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
