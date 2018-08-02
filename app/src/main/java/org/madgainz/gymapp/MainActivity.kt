@@ -2,61 +2,85 @@ package org.madgainz.gymapp
 
 import android.media.MediaPlayer
 import android.os.Bundle
-import android.os.SystemClock
+import android.os.CountDownTimer
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Chronometer
+import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import org.madgainz.gymapp.MainActivity.State.*
+import java.util.concurrent.TimeUnit
+
 
 class MainActivity : AppCompatActivity() {
 
-    private var state = STOPPED
+    private lateinit var countDownTimer: CountDownTimer
     private lateinit var mp: MediaPlayer
 
-    private enum class State(val time: Long) {
-        STOPPED(0), WARM_UP(10000), COOL_DOWN(15000), EXERCISE(45000)
+    private enum class State(val time: Long, val displayText: String) {
+        STOPPED(0, "Ready"), WARM_UP(10000, "Hello Thenx athletes"), COOL_DOWN(15000, "Woo, *clap*, Alright!"), EXERCISE(45000, "Lets do it, baby!")
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
-        mp = MediaPlayer.create(this, R.raw.beep)
+        mp = MediaPlayer.create(this, R.raw.chime)
 
-        chronometer.onChronometerTickListener = Chronometer.OnChronometerTickListener { chronometer ->
-            if (isTimedOut()) {
-               state = when (state) {
-                   MainActivity.State.STOPPED -> STOPPED
-                   WARM_UP -> switchStateTo(EXERCISE, chronometer)
-                   EXERCISE -> switchStateTo(COOL_DOWN, chronometer)
-                   COOL_DOWN -> switchStateTo(EXERCISE, chronometer)
-               }
-            }
-        }
+        var running = false
         beepFab.setOnClickListener {
-            if (state == STOPPED) {
-                switchStateTo(WARM_UP, chronometer)
+            if (!running) {
+                running = true
+                countDownTimer = startTimer(WARM_UP, timer_display)
             } else {
-                state = STOPPED
-                chronometer.stop()
+                running = false
+                timer_display.text = getString(R.string.initial_timer_display)
+                countDownTimer.cancel()
             }
         }
     }
 
-    private fun switchStateTo(newState: State, chronometer: Chronometer): State {
-        mp.start()
-        chronometer.stop()
-        chronometer.base = SystemClock.elapsedRealtime() + getTimeRemaining(newState)
-        chronometer.start()
-        return newState
+    private fun createTimer(state: State, timer: TextView): CountDownTimer {
+        return object : CountDownTimer(state.time, 1) {
+            override fun onTick(millisUntilFinished: Long) {
+                timer.text = format(millisUntilFinished)
+                display_text.text = state.displayText
+            }
+
+            override fun onFinish() {
+                countDownTimer.cancel()
+                mp.start()
+                if (state != STOPPED) {
+                    timer.text = format(0)
+                    countDownTimer = startTimer(getNextState(state), timer)
+                } else {
+                    timer.text = getString(R.string.initial_timer_display)
+                }
+            }
+        }
     }
 
-    private fun getTimeRemaining(state: State) = SystemClock.elapsedRealtime() + state.time
+    private fun format(millis: Long): String {
+        return String.format("%02d:%02d",
+                TimeUnit.MILLISECONDS.toMinutes(millis) -
+                        TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)),
+                TimeUnit.MILLISECONDS.toSeconds(millis) -
+                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)) + 1)
+    }
 
-    private fun isTimedOut() = SystemClock.elapsedRealtime() == chronometer.base
+    private fun startTimer(initialState: State, timer: TextView): CountDownTimer {
+        return createTimer(initialState, timer).start()
+    }
+
+    private fun getNextState(currentState: State): State {
+        return when (currentState) {
+            MainActivity.State.STOPPED -> STOPPED
+            WARM_UP -> EXERCISE
+            EXERCISE -> COOL_DOWN
+            COOL_DOWN -> EXERCISE
+        }
+    }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.

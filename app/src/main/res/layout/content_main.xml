@@ -37,33 +37,19 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/label"
+            android:id="@+id/display_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Initial value"
+            android:text="@string/initial_timer_display"
             android:textAlignment="center"
             android:textSize="24sp" />
 
-        <Chronometer
-            android:id="@+id/chronometer"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:countDown="true"
-            android:gravity="center_horizontal"
-            android:textAlignment="center"
-            android:textAppearance="@style/TextAppearance.AppCompat.Large"
-            android:textStyle="bold"
-            app:layout_constraintDimensionRatio="w,1:1"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_chainStyle="packed" />
-
-        <EditText
-            android:id="@+id/timer_value_input"
-            android:layout_height="wrap_content"
+        <TextView
+            android:id="@+id/timer_display"
             android:layout_width="match_parent"
-            android:inputType="phone"
-            android:textAlignment="center" />
+            android:layout_height="wrap_content"
+            android:text="@string/initial_timer_display"
+            android:textAlignment="center"
+            android:textSize="24sp" />
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>
