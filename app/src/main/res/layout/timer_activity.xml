@@ -1,38 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context=".TimerActivity"
-    tools:showIn="@layout/activity_main">
+    android:gravity="center_vertical|center_horizontal"
+    android:orientation="vertical"
+    tools:context=".TimerActivity">
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/display_text"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:text="@string/initial_display_text"
+        android:textAlignment="center"
+        android:textSize="36sp" />
 
-        <TextView
-            android:id="@+id/display_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/initial_display_text"
-            android:textAlignment="center"
-            android:textSize="24sp" />
+    <TextView
+        android:id="@+id/timer_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:text="@string/initial_timer_text"
+        android:textAlignment="center"
+        android:textSize="36sp" />
 
-        <TextView
-            android:id="@+id/timer_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/initial_timer_text"
-            android:textAlignment="center"
-            android:textSize="24sp" />
-
-        <Button
-            android:id="@+id/timer_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/start_button" />
-    </LinearLayout>
-</android.support.constraint.ConstraintLayout>
+    <Button
+        android:id="@+id/timer_button"
+        style="@style/Widget.MaterialComponents.Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:elevation="2dp"
+        android:text="@string/start_button"
+        android:textSize="36sp" />
+</LinearLayout>
