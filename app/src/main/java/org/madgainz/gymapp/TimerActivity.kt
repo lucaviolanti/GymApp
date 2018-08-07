@@ -12,6 +12,7 @@ import kotlinx.android.synthetic.main.timer_activity.*
 import java.util.*
 import java.util.concurrent.TimeUnit
 import org.madgainz.gymapp.TimerActivity.State.*
+import org.madgainz.gymapp.model.Workout
 
 class TimerActivity : FragmentActivity() {
     private lateinit var countDownTimer: CountDownTimer
@@ -21,7 +22,7 @@ class TimerActivity : FragmentActivity() {
 
     private enum class State(val time: Long, val displayText: String, val order: Int) {
         STOPPED(0, "Ready", -1),
-        WARM_UP(10000, "Hello Thenx athletes", 0),
+        WARM_UP(10000, "Hello THENX athletes", 0),
         COOL_DOWN(15000, "Next, ", 2),
         HIGH_KNEES(45000, "High Knees", 1),
         RUSSIAN_TWIST(45000, "Russian twists", 3),
@@ -29,7 +30,7 @@ class TimerActivity : FragmentActivity() {
         KNEE_RAISE(45000, "Knee Raises", 7),
         FLUTTER_KICKS(45000, "Flutter kicks", 9),
         KNEE_TO_ELBOW_PLANK(45000, "Knees to elbows plank", 11),
-        CHAIR_SITUPS(45000, "Chair situps", 13),
+        CHAIR_SITUPS(45000, "Chair sit up", 13),
         SEATED_IN_AND_OUTS(45000, "Seated in and outs", 15),
         JUMPING_JACKS(45000, "Jumping jacks", 17);
     }
@@ -52,18 +53,25 @@ class TimerActivity : FragmentActivity() {
         }) {}
 
         var running = false
+        countDownTimer = createTimer(WARM_UP, timer_text)
         timer_button.setOnClickListener {
             if (!running) {
                 running = true
                 stateAsInt = 0
                 textToSpeech.speak("First up, High knees", 0, Bundle.EMPTY, "someId")
-                countDownTimer = startTimer(WARM_UP, timer_text)
+                countDownTimer.start()
             } else {
                 running = false
                 timer_text.text = getString(R.string.initial_timer_text)
                 countDownTimer.cancel()
             }
         }
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        countDownTimer.cancel()
+        stateAsInt = 0
     }
 
     private fun createTimer(state: State, timer: TextView): CountDownTimer {
@@ -79,7 +87,7 @@ class TimerActivity : FragmentActivity() {
                 textToSpeech.speak(getDisplayText(), 0, Bundle.EMPTY, "someId")
                 if (state != STOPPED) {
                     timer.text = format(0)
-                    countDownTimer = startTimer(getState(++stateAsInt), timer)
+                    countDownTimer = createTimer(getState(++stateAsInt), timer).start()
                 } else {
                     timer.text = getString(R.string.initial_timer_text)
                 }
@@ -102,10 +110,6 @@ class TimerActivity : FragmentActivity() {
                         TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)),
                 TimeUnit.MILLISECONDS.toSeconds(millis) -
                         TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)) + 1)
-    }
-
-    private fun startTimer(initialState: State, timer: TextView): CountDownTimer {
-        return createTimer(initialState, timer).start()
     }
 
     private fun getState(currentState: Int): State {
