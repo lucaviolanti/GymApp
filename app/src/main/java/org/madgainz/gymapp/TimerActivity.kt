@@ -9,10 +9,9 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.TextView
 import kotlinx.android.synthetic.main.timer_activity.*
+import org.madgainz.gymapp.TimerActivity.State.*
 import java.util.*
 import java.util.concurrent.TimeUnit
-import org.madgainz.gymapp.TimerActivity.State.*
-import org.madgainz.gymapp.model.Workout
 
 class TimerActivity : FragmentActivity() {
     private lateinit var countDownTimer: CountDownTimer
