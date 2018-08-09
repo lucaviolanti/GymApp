@@ -9,7 +9,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.TextView
 import kotlinx.android.synthetic.main.timer_activity.*
-import org.madgainz.gymapp.TimerActivity.State.*
+import org.madgainz.gymapp.model.TimedStage
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -17,29 +17,6 @@ class TimerActivity : FragmentActivity() {
     private lateinit var countDownTimer: CountDownTimer
     private lateinit var mp: MediaPlayer
     private lateinit var textToSpeech: TextToSpeech
-    private var stateAsInt = 0
-
-    private enum class State(val time: Long, val displayText: String, val order: Int) {
-        STOPPED(0, "Ready", -1),
-        WARM_UP(10000, "Hello THENX athletes", 0),
-        COOL_DOWN(15000, "Next, ", 2),
-        HIGH_KNEES(45000, "High Knees", 1),
-        RUSSIAN_TWIST(45000, "Russian twists", 3),
-        LEG_RAISE(45000, "Leg Raises", 5),
-        KNEE_RAISE(45000, "Knee Raises", 7),
-        FLUTTER_KICKS(45000, "Flutter kicks", 9),
-        KNEE_TO_ELBOW_PLANK(45000, "Knees to elbows plank", 11),
-        CHAIR_SITUPS(45000, "Chair sit up", 13),
-        SEATED_IN_AND_OUTS(45000, "Seated in and outs", 15),
-        JUMPING_JACKS(45000, "Jumping jacks", 17);
-    }
-
-    private fun stateFromInt(value: Int): State {
-        if (value > 17 || value < 0) {
-            return STOPPED
-        }
-        return State.values().firstOrNull { it.order == value } ?: COOL_DOWN
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,13 +28,16 @@ class TimerActivity : FragmentActivity() {
             }
         }) {}
 
+        val programme = sixPackAbsForBeginnersYouCanDoAnywhere2018.exercises.iterator()
+
         var running = false
-        countDownTimer = createTimer(WARM_UP, timer_text)
+
+        countDownTimer = createTimer(10 ,programme, timer_text)
+
         timer_button.setOnClickListener {
             if (!running) {
                 running = true
-                stateAsInt = 0
-                textToSpeech.speak("First up, High knees", 0, Bundle.EMPTY, "someId")
+                textToSpeech.speak(getString(R.string.ready_text), 0, Bundle.EMPTY, "someId")
                 countDownTimer.start()
             } else {
                 running = false
@@ -70,37 +50,40 @@ class TimerActivity : FragmentActivity() {
     override fun onBackPressed() {
         super.onBackPressed()
         countDownTimer.cancel()
-        stateAsInt = 0
     }
 
-    private fun createTimer(state: State, timer: TextView): CountDownTimer {
-        return object : CountDownTimer(state.time, 1) {
+    private fun createTimer(time: Long, programme: Iterator<TimedStage>, timer: TextView): CountDownTimer {
+        return object : CountDownTimer(time * 1000, 1) {
             override fun onTick(millisUntilFinished: Long) {
                 timer.text = format(millisUntilFinished)
-                display_text.text = state.displayText
+                display_text.text = getString(R.string.ready_text)
             }
 
             override fun onFinish() {
-                countDownTimer.cancel()
-                mp.start()
-                textToSpeech.speak(getDisplayText(), 0, Bundle.EMPTY, "someId")
-                if (state != STOPPED) {
-                    timer.text = format(0)
-                    countDownTimer = createTimer(getState(++stateAsInt), timer).start()
-                } else {
-                    timer.text = getString(R.string.initial_timer_text)
-                }
+                restartTimer(programme, timer)
             }
         }
     }
 
-    private fun getDisplayText(): String {
-        val nextState = getState(stateAsInt + 1)
-        return if (nextState == COOL_DOWN) {
-            "${nextState.displayText} ${getState(stateAsInt + 2).displayText}"
-        } else {
-            nextState.displayText
+    private fun createTimer(programme: Iterator<TimedStage>, currentStage: TimedStage, timer: TextView): CountDownTimer {
+        return object : CountDownTimer(currentStage.time.seconds * 1000, 1) {
+            override fun onTick(millisUntilFinished: Long) {
+                timer.text = format(millisUntilFinished)
+                display_text.text = currentStage.name
+            }
+
+            override fun onFinish() {
+                restartTimer(programme, timer)
+            }
         }
+    }
+
+    private fun restartTimer(programme: Iterator<TimedStage>, timer: TextView) {
+        countDownTimer.cancel()
+        mp.start()
+        val nextStage = programme.next()
+        textToSpeech.speak(nextStage.name, 0, Bundle.EMPTY, "someId")
+        countDownTimer = createTimer(programme, nextStage, timer).start()
     }
 
     private fun format(millis: Long): String {
@@ -109,10 +92,6 @@ class TimerActivity : FragmentActivity() {
                         TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)),
                 TimeUnit.MILLISECONDS.toSeconds(millis) -
                         TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)) + 1)
-    }
-
-    private fun getState(currentState: Int): State {
-        return stateFromInt(currentState)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

@@ -2,11 +2,13 @@ package org.madgainz.gymapp.model
 
 data class Workout(val name: String, val exercises: List<Stage>)
 
+data class TimedWorkout (val name: String, val exercises: List<TimedStage>)
+
 sealed class Stage
 
-data class Rest(val time: Long) : Stage()
+data class CompositeStage(val name: String, val type: List<ExerciseTypeComponent>) : Stage()
 
-data class Exercise(val name: String, val type: List<ExerciseTypeComponent>) : Stage()
+data class TimedStage(val name: String, val time: Time) : Stage()
 
 sealed class ExerciseTypeComponent
 data class Time(val seconds: Long) : ExerciseTypeComponent()

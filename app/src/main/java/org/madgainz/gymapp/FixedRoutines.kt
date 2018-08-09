@@ -2,24 +2,25 @@ package org.madgainz.gymapp
 
 import org.madgainz.gymapp.model.*
 
-val sixPackAbsForBeginnersYouCanDoAnywhere2018 =
-        Workout("Six Pack Abs For Beginners You Can Do Anywhere | 2018",
-                listOf(
-                        Exercise("Knee Slaps", listOf(Time(45))),
-                        Rest(15),
-                        Exercise("Russian Twists", listOf(Time(45))),
-                        Rest(15),
-                        Exercise("Leg Raises", listOf(Time(45))),
-                        Rest(15),
-                        Exercise("Knee Raises", listOf(Time(45))),
-                        Rest(15),
-                        Exercise("Flutter Kicks", listOf(Time(45))),
-                        Rest(15),
-                        Exercise("Plank Knee to Elbow", listOf(Time(45))),
-                        Rest(15),
-                        Exercise("Chair Sit Ups", listOf(Time(45))),
-                        Rest(15),
-                        Exercise("Seated In and Outs", listOf(Time(45))),
-                        Rest(15),
-                        Exercise("Jumping Jacks", listOf(Time(45)))
+val fifteenSecondsOfTimeWhereYouDoNotExercise = TimedStage("Rest",Time(15))
+
+val sixPackAbsForBeginnersYouCanDoAnywhere2018: TimedWorkout =
+        TimedWorkout("Six Pack Abs For Beginners You Can Do Anywhere | 2018", listOf(
+                        TimedStage("Knee Slaps", Time(45)),
+                        fifteenSecondsOfTimeWhereYouDoNotExercise,
+                        TimedStage("Russian Twists", Time(45)),
+                        fifteenSecondsOfTimeWhereYouDoNotExercise,
+                        TimedStage("Leg Raises", Time(45)),
+                        fifteenSecondsOfTimeWhereYouDoNotExercise,
+                        TimedStage("Knee Raises", Time(45)),
+                        fifteenSecondsOfTimeWhereYouDoNotExercise,
+                        TimedStage("Flutter Kicks", Time(45)),
+                        fifteenSecondsOfTimeWhereYouDoNotExercise,
+                        TimedStage("Plank Knee to Elbow", Time(45)),
+                        fifteenSecondsOfTimeWhereYouDoNotExercise,
+                        TimedStage("Chair Sit Ups", Time(45)),
+                        fifteenSecondsOfTimeWhereYouDoNotExercise,
+                        TimedStage("Seated In and Outs", Time(45)),
+                        fifteenSecondsOfTimeWhereYouDoNotExercise,
+                        TimedStage("Jumping Jacks", Time(45))
                 ))

@@ -12,6 +12,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
+
         beepFab.setOnClickListener {
             startActivity(Intent(it.context, TimerActivity::class.java))
         }
