@@ -9,7 +9,6 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.TextView
 import kotlinx.android.synthetic.main.timer_activity.*
-import org.madgainz.gymapp.model.TimedStage
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -28,16 +27,17 @@ class TimerActivity : FragmentActivity() {
             }
         }) {}
 
-        val programme = sixPackAbsForBeginnersYouCanDoAnywhere2018.exercises.iterator()
+        val programme = sixPackAbsForBeginnersYouCanDoAnywhere2018.toVoiceCommands().iterator()
 
         var running = false
 
-        countDownTimer = createTimer(10 ,programme, timer_text)
+        val firstStep = programme.next()
+        countDownTimer = createTimer(firstStep.second, firstStep.first, programme, timer_text)
 
         timer_button.setOnClickListener {
             if (!running) {
                 running = true
-                textToSpeech.speak(getString(R.string.ready_text), 0, Bundle.EMPTY, "someId")
+                textToSpeech.speak(firstStep.first, 0, Bundle.EMPTY, "someId")
                 countDownTimer.start()
             } else {
                 running = false
@@ -52,38 +52,27 @@ class TimerActivity : FragmentActivity() {
         countDownTimer.cancel()
     }
 
-    private fun createTimer(time: Long, programme: Iterator<TimedStage>, timer: TextView): CountDownTimer {
+    private fun createTimer(time: Long, stageName: String, restOfProgramme: Iterator<Pair<String, Long>>, timerView: TextView): CountDownTimer {
         return object : CountDownTimer(time * 1000, 1) {
             override fun onTick(millisUntilFinished: Long) {
-                timer.text = format(millisUntilFinished)
-                display_text.text = getString(R.string.ready_text)
+                timerView.text = format(millisUntilFinished)
+                display_text.text = stageName
             }
 
             override fun onFinish() {
-                restartTimer(programme, timer)
+                restartTimer(restOfProgramme, timerView)
             }
         }
     }
 
-    private fun createTimer(programme: Iterator<TimedStage>, currentStage: TimedStage, timer: TextView): CountDownTimer {
-        return object : CountDownTimer(currentStage.time.seconds * 1000, 1) {
-            override fun onTick(millisUntilFinished: Long) {
-                timer.text = format(millisUntilFinished)
-                display_text.text = currentStage.name
-            }
-
-            override fun onFinish() {
-                restartTimer(programme, timer)
-            }
-        }
-    }
-
-    private fun restartTimer(programme: Iterator<TimedStage>, timer: TextView) {
+    private fun restartTimer(programme: Iterator<Pair<String, Long>>, timer: TextView) {
         countDownTimer.cancel()
         mp.start()
-        val nextStage = programme.next()
-        textToSpeech.speak(nextStage.name, 0, Bundle.EMPTY, "someId")
-        countDownTimer = createTimer(programme, nextStage, timer).start()
+        if (programme.hasNext()) {
+            val nextStage = programme.next()
+            textToSpeech.speak(nextStage.first, 0, Bundle.EMPTY, "someId")
+            countDownTimer = createTimer(nextStage.second, nextStage.first, programme, timer).start()
+        }
     }
 
     private fun format(millis: Long): String {
