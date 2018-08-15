@@ -2,9 +2,9 @@ package org.madgainz.gymapp
 
 import org.madgainz.gymapp.model.*
 
-val TIME10s = Time(1)
-val TIME15s = Time(2)
-val TIME45s = Time(5)
+val TIME10s = Time(10)
+val TIME15s = Time(15)
+val TIME45s = Time(45)
 
 val sixPackAbsForBeginnersYouCanDoAnywhere2018: TimedWorkout =
         TimedWorkout("Six Pack Abs For Beginners You Can Do Anywhere | 2018", listOf(
