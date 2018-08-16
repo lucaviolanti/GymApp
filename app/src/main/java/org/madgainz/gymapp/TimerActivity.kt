@@ -5,10 +5,9 @@ import android.os.Bundle
 import android.os.CountDownTimer
 import android.speech.tts.TextToSpeech
 import android.support.v4.app.FragmentActivity
-import android.view.Menu
-import android.view.MenuItem
 import android.widget.TextView
 import kotlinx.android.synthetic.main.timer_activity.*
+import org.madgainz.gymapp.model.Stage
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -16,6 +15,7 @@ class TimerActivity : FragmentActivity() {
     private lateinit var countDownTimer: CountDownTimer
     private lateinit var mp: MediaPlayer
     private lateinit var textToSpeech: TextToSpeech
+    private var running: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,17 +27,15 @@ class TimerActivity : FragmentActivity() {
             }
         }) {}
 
-        val programme = sixPackAbsForBeginnersYouCanDoAnywhere2018.toVoiceCommands().iterator()
+        val workoutRunner = TimedWorkoutRunner(sixPackAbsForBeginnersYouCanDoAnywhere2018)
 
-        var running = false
-
-        val firstStep = programme.next()
-        countDownTimer = createTimer(firstStep.second, firstStep.first, programme, timer_text)
+        val firstStep = workoutRunner.start()
+        countDownTimer = createTimer(firstStep, workoutRunner, timer_text)
 
         timer_button.setOnClickListener {
             if (!running) {
                 running = true
-                textToSpeech.speak(firstStep.first, 0, Bundle.EMPTY, "someId")
+                textToSpeech.speak(firstStep.name, 0, Bundle.EMPTY, "someId")
                 countDownTimer.start()
             } else {
                 running = false
@@ -52,26 +50,31 @@ class TimerActivity : FragmentActivity() {
         countDownTimer.cancel()
     }
 
-    private fun createTimer(time: Long, stageName: String, restOfProgramme: Iterator<Pair<String, Long>>, timerView: TextView): CountDownTimer {
-        return object : CountDownTimer(time * 1000, 1) {
+    private fun createTimer(stage: Stage, runner: TimedWorkoutRunner, timerView: TextView): CountDownTimer {
+        return object : CountDownTimer(stage.time.seconds * 1000, 1) {
             override fun onTick(millisUntilFinished: Long) {
                 timerView.text = format(millisUntilFinished)
-                display_text.text = stageName
+                display_text.text = stage.name
             }
 
             override fun onFinish() {
-                restartTimer(restOfProgramme, timerView)
+                restartTimer(runner, timerView)
             }
         }
     }
 
-    private fun restartTimer(programme: Iterator<Pair<String, Long>>, timer: TextView) {
+    private fun restartTimer(runner: TimedWorkoutRunner, timer: TextView) {
         countDownTimer.cancel()
         mp.start()
-        if (programme.hasNext()) {
-            val nextStage = programme.next()
-            textToSpeech.speak(nextStage.first, 0, Bundle.EMPTY, "someId")
-            countDownTimer = createTimer(nextStage.second, nextStage.first, programme, timer).start()
+        countDownTimer = if (runner.hasNext()) {
+            val nextStage = runner.next()
+            textToSpeech.speak(nextStage.name, 0, Bundle.EMPTY, "someId")
+            createTimer(nextStage, runner, timer).start()
+        } else {
+            running = false
+            timer_text.text = getString(R.string.initial_timer_text)
+            textToSpeech.speak("Finished", 0, Bundle.EMPTY, "someId")
+            createTimer(runner.reset(), runner, timer)
         }
     }
 
@@ -81,21 +84,5 @@ class TimerActivity : FragmentActivity() {
                         TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)),
                 TimeUnit.MILLISECONDS.toSeconds(millis) -
                         TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)) + 1)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        menuInflater.inflate(R.menu.menu_main, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        return when (item.itemId) {
-            R.id.action_settings -> true
-            else -> super.onOptionsItemSelected(item)
-        }
     }
 }

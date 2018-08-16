@@ -2,17 +2,13 @@ package org.madgainz.gymapp.model
 
 data class Workout(val name: String, val exercises: List<Stage>)
 
-data class TimedWorkout (val name: String, val exercises: List<TimedStage>) {
-    fun toVoiceCommands(): List<Pair<String, Long>> {
-        return this.exercises.flatMap { ts -> listOf((Pair("Next up\n" + ts.name, ts.warmup.seconds)), Pair(ts.name, ts.time.seconds)) }
-    }
-}
+data class TimedWorkout (val name: String, val exercises: List<Stage>)
 
-sealed class Stage
+sealed class Stage(open val name: String, open val time: Time)
 
-data class CompositeStage(val name: String, val type: List<ExerciseTypeComponent>) : Stage()
+data class TimedStage(override val name: String, override val time: Time) : Stage(name, time)
 
-data class TimedStage(val name: String, val warmup: Time, val time: Time) : Stage()
+data class Rest(override val name: String = "Rest", override val time: Time) : Stage(name, time)
 
 sealed class ExerciseTypeComponent
 data class Time(val seconds: Long) : ExerciseTypeComponent()
